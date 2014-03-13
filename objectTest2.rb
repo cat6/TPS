@@ -51,7 +51,9 @@ class Bus
     def nextStop()
         # find the stop on @busRoute after @location
         currentIndex = @busRoute.index(@location)
+        puts "Current Index: " + currentIndex.to_s + "\n"
         @newLocation = @busRoute[currentIndex + 1]
+        puts "\n\nNew Location: " + @newLocation.getName() + "\n"
         return @newLocation
         # Set @location to next stop
     end
@@ -60,10 +62,11 @@ class Bus
         puts "Length: " + @busRoute.length().to_s
         puts "index: " + @busRoute.index(@location).to_s + "\n"
         # If stops remain in the route, go to next stop
-        if @busRoute.index(@location) + 1 >= @busRoute.length 
+        if @busRoute.index(@location) != (@busRoute.length - 1)
             @location = nextStop()
         else
             @location = @busRoute[0]
+            puts "\n\nNew Location: " + @location.getName() + "\n"
         end
     end
         
@@ -185,10 +188,10 @@ if __FILE__ == $PROGRAM_NAME
     while 1
     #puts "Next stop: " + myBus.nextStop().getName() + "\n"
     puts "Moving...\n"
-    myBus.info()
+    #myBus.info()
     sleep(2)
     myBus.move()
-    puts "Current Stop: " + myBus.getLocation().to_s
+    #puts "Current Stop: " + myBus.getLocation().to_s + "\n"
     end
 end
 
