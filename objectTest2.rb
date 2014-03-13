@@ -74,9 +74,10 @@ end
 
 class Route
 
-    def initialize(routeNumber, routeStops)
+    def initialize(routeNumber, routeStops, type)
         @routeNumber = routeNumber
         @routeStops = routeStops
+        @type = type    # 0 means a loop (1, 2, 3, 1, 2, 3), whereas 1 means out-and-back-again (1, 2, 3, 2, 1, 2, 3)
     end
 
     def info()
@@ -153,7 +154,7 @@ if __FILE__ == $PROGRAM_NAME
     myStops = [$stationUnion, $stationMimico, $stationUnionville]
 
     # Define a Route
-    myRoute = Route.new(1, myStops)
+    myRoute = Route.new(1, myStops, 1)
 
 
     # Define a bus
