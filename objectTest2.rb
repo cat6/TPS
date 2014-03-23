@@ -126,47 +126,14 @@ class Person
     end
 end
 
-if __FILE__ == $PROGRAM_NAME
+def makeStations()
+    # Returns an array of station objects.  Takes in a hash of station names / vehicle type arrays.
+    $stationUnion = Station.new("Union", $vehicleTypes)
+    $stationMimico = Station.new("Mimico", $vehicleTypes)
+    $stationUnionville = Station.new("Unionville", $vehicleTypes)
+end
 
-    # Count the number of stations
-    $stationCount = 0
-
-    # Define Array inputs
-    #myStops = %w(Union Mimico)
-
-    $vehicleTypes = %w(Bus Train)
-
-    # Define an array of stations
-    allStations = []
-
-    # Define Stations
-    #stations = {'Union' => vehicleTypes, 'Mimico' => vehicleTypes}
-
-    def makeStations()
-        # Returns an array of station objects.  Takes in a hash of station names / vehicle type arrays.
-        $stationUnion = Station.new("Union", $vehicleTypes)
-        $stationMimico = Station.new("Mimico", $vehicleTypes)
-        $stationUnionville = Station.new("Unionville", $vehicleTypes)
-    end
-
-    makeStations()
-
-    myStops = [$stationUnion, $stationMimico, $stationUnionville]
-
-    # Define a Route
-    myRoute = Route.new(1, myStops, 1)
-
-
-    # Define a bus
-    myBus = Bus.new("bus1", 0.95, myRoute, $stationUnion)
-
-    # Create a person
-    myPerson = Person.new("Alice", 100, myBus)
-
-    routes = [myRoute]
-    people = [myPerson]
-    $fleet = [myBus]
-
+def systemInfo(routes, people, fleet)
     puts "ROUTES\n"
     for route in routes 
         route.info()
@@ -185,15 +152,57 @@ if __FILE__ == $PROGRAM_NAME
         puts "\n\n"
     end
 
-    puts "Current Stop: " + myBus.getLocation().to_s
-    while 1
-    #puts "Next stop: " + myBus.nextStop().getName() + "\n"
-    puts "Moving...\n"
-    #myBus.info()
-    sleep(2)
-    myBus.move()
-    #puts "Current Stop: " + myBus.getLocation().to_s + "\n"
+end
+
+def testSimpleSystem
+    # Count the number of stations
+    $stationCount = 0
+    $vehicleTypes = %w(Bus Train)
+    # Define an array of stations
+    allStations = []
+    makeStations()
+
+    # Define Stops
+    myStops = [$stationUnion, $stationMimico, $stationUnionville]
+
+    # Define a Route
+    myRoute = Route.new(1, myStops, 1)
+
+    # Define a bus
+    myBus = Bus.new("bus1", 0.95, myRoute, $stationUnion)
+
+    # Create a person
+    myPerson = Person.new("Alice", 100, myBus)
+
+    routes = [myRoute]
+    people = [myPerson]
+    $fleet = [myBus]
+
+    systemInfo(routes, people, $fleet)
+
+    def loopSimpleSystem(myBus)
+        # Helper function: take in a bus object and operate it on its assigned route
+        # Assumes myBus is a valid bus object, with or without passengers.
+        puts "Current Stop: " + myBus.getLocation().to_s
+
+        while 1
+            #puts "Next stop: " + myBus.nextStop().getName() + "\n"
+            puts "Moving...\n"
+            #myBus.info()
+            sleep(2)
+            myBus.move()
+            #puts "Current Stop: " + myBus.getLocation().to_s + "\n"
+        end
+
     end
+
+    loopSimpleSystem(myBus)
+
+end
+
+## MAIN ##
+if __FILE__ == $PROGRAM_NAME
+    testSimpleSystem()  
 end
 
 
