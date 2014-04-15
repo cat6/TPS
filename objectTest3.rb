@@ -46,6 +46,7 @@ class Vehicle
         @name = vehicleName
         @reliability = reliability
         @vehicleRoute = vehicleRoute.getStops()
+        @vehicleRouteCosts = vehicleRoute.getStopCosts()
         @location = location
     end
 
@@ -75,27 +76,52 @@ class Vehicle
     end
 
     def move() 
-        puts "Length: " + @vehicleRoute.length().to_s
-        puts "index: " + @vehicleRoute.index(@location).to_s + "\n"
+        puts "\ncosts: " + @vehicleRouteCosts.to_s + "\n"
+        #puts "Length: " + @vehicleRoute.length().to_s + "\n"
+        routeIndex = @vehicleRoute.index(@location)
+        puts "index: " + routeIndex.to_s + "\n"
         # If stops remain in the route, go to next stop
+        #puts "stop cost: " + @vehicleRouteCosts[routeIndex]
         if @vehicleRoute.index(@location) != (@vehicleRoute.length - 1)
             @location = nextStop()
-            #getPassengers()
+            chargePassengers()
         else
             @location = @vehicleRoute[0]
             puts "\n\nNew Location: " + @location.getName() + "\n"
-            #getPassengers()
+            chargePassengers()
         end
     end
 
     def getPassengers()
+        passengersOnVehicle = []
         puts "Passengers: \n"
         for person in $people
             #puts person.getName() + "\n"
             if person.getLocation() == getName()
-                puts person.getName()
+                passengersOnVehicle.push(person)
             end
         end
+        return passengersOnVehicle
+    end
+
+    def chargePassengers()
+        puts "Charging Passengers\n"
+        for person in getPassengers()
+            chargeValue = 1     # Modify later.  Use fixed for now.
+            print person.getName()
+            puts "\nCharging " + person.getName() + " " + chargeValue.to_s   #getStopCharge()
+            person.chargeFare(chargeValue)
+            puts "New Balance: " + person.getCardBalance().to_s
+        end
+    end
+
+    def chargeFare(person, chargeValue)
+        # Charge person's card amount chargeValue
+        person.car
+    end
+
+    def getStopCharge()
+        return 1
     end
 
 end
@@ -112,10 +138,11 @@ end
 
 class Route
     # Defines a route
-    def initialize(routeNumber, routeStops, type)
+    def initialize(routeNumber, routeStops, type, stopCosts)
         @routeNumber = routeNumber
         @routeStops = routeStops
         @type = type    # 0 means a loop (1, 2, 3, 1, 2, 3), whereas 1 means out-and-back-again (1, 2, 3, 2, 1, 2, 3)
+        @stopCosts
     end
 
     def info()
@@ -142,6 +169,10 @@ class Route
 
     def getStops()
         return @routeStops
+    end
+
+    def getStopCosts()
+        return @stopCosts
     end
 end
 
@@ -171,6 +202,10 @@ class Person
 
     def getLocation()
         return @personLocation.getName()
+    end
+
+    def getCardBalance()
+        return @personCardBalance
     end
 
     def depositToBank(amount)
@@ -207,6 +242,10 @@ class Person
         else
             return -1
         end
+    end
+
+    def chargeFare(amount)
+        @personCardBalance -= amount
     end
 
     def board(vehicle)
@@ -249,10 +288,15 @@ if __FILE__ == $PROGRAM_NAME
 
     makeStations()
 
-    myStops = [$stationUnion, $stationMimico, $stationUnionville]
+    #myStops = [$stationUnion, $stationMimico, $stationUnionville]   # A loop route
+    #myStopCosts = [1, 1, 2]                                         # Costs twice as much to go back 2 stops
+
+    myStops = [$stationUnion, $stationMimico, $stationUnionville]   # A loop route
+
+    myStopCosts = [1, 1, 2]
 
     # Define a Route
-    myRoute = Route.new(1, myStops, 1)
+    myRoute = Route.new(1, myStops, 1, myStopCosts)
 
 
     # Define a bus
