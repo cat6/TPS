@@ -1,11 +1,29 @@
-# Object Test
+#!/usr/bin/env ruby -w
 
-# Have a list of routes.  Each has a list of stations; because
-# Ruby points by reference, they should all point to the same station
-# object.  Each station has a list of busses.
+# Basic System
 
+class System
+    # Defines a Transit System.  Stations, routes, and vehicles can have the System object as a data member.
+    # Params:
+    # +systemName+:: The transit system's name
+    # +systemDescription+:: A description of the transit system
+    def initialize(name, description)
+        @systemName = name
+        @systemDescription = description
+    end
+
+    def info()
+        puts "Transit System Name: " + @systemName.to_s + "\n"
+        puts "Description:\n"
+        puts @description.to_s + "\n"
+    end
+end
 
 class Station
+    # Defines a station
+    # Params:
+    # +stationName+::  The station's name
+    # +vehicleTypes+::  The types of vehicle the station can accept
     def initialize(stationName, vehicleTypes)
         @stationName = stationName
         @vehicleTypes = vehicleTypes
@@ -23,7 +41,7 @@ class Station
 end
 
 class Bus
-
+    # Defines a Bus
     $busReliability = 0.95
 
     def initialize(busName, reliability, busRoute, location)
@@ -64,16 +82,28 @@ class Bus
         # If stops remain in the route, go to next stop
         if @busRoute.index(@location) != (@busRoute.length - 1)
             @location = nextStop()
+            #getPassengers()
         else
             @location = @busRoute[0]
             puts "\n\nNew Location: " + @location.getName() + "\n"
+            #getPassengers()
+        end
+    end
+
+    def getPassengers()
+        puts "Passengers: \n"
+        for person in $people
+            #puts person.getName() + "\n"
+            if person.getLocation() == getName()
+                puts person.getName()
+            end
         end
     end
         
 end
 
 class Route
-
+    # Defines a route
     def initialize(routeNumber, routeStops, type)
         @routeNumber = routeNumber
         @routeStops = routeStops
@@ -108,22 +138,82 @@ class Route
 end
 
 class Person
-
+    # Defines a Person
+    # +personName+::  The Person's name
+    # +personBankBalance+::  The balance of the Person's bank account.  Funds are transfered from here to their transit card.  When the person is created they must transfer funds to their transit card in order to travel.
+    # +personCardBalance+::  The balance of the Person's transit card.  Funds are transfered from here to their bank account, or decremented as they ride the transit system.
+    # +personLocation+::  The person's location.  Either a station or a vehicle.  
     def initialize(name, balance, location)
         @personName = name
-        @personBalance = balance
+        @personBankBalance = balance
+        @personCardBalance = 0
         @personLocation = location
     end
 
     def info()
         puts "Name: " + @personName + "\n"
-        puts "Balance: " + @personBalance.to_s + "\n"
+        puts "Bank Balance: " + @personBankBalance.to_s + "\n"
+        puts "Card Balance: " + @personCardBalance.to_s + "\n"
         puts "Location: " + @personLocation.getName() + "\n\n"
     end
 
     def getName()
         return @personName
     end
+
+    def getLocation()
+        return @personLocation.getName()
+    end
+
+    def depositToBank(amount)
+        ##### How to handle this transaction safely?  What if there's a system crash and the balance data are lost? 
+        @personBankBalance = @personBankBalance + amount
+    end
+
+    def transferToCard(amount)
+        ##### How to handle this transaction safely?  What if there's a system crash and the balance data are lost?  
+        if @personBankBalance >= amount
+            @personBankBalance = @personBankBalance - amount
+            @personCardBalance = @personCardBalance + amount
+        else
+            return -1
+        end
+    end
+
+    def transferToBank(amount)
+        ##### How to handle this transaction safely?  What if there's a system crash and the balance data are lost? 
+        if @personCardBalance >= amount
+            @personCardBalance = @personCardBalance - amount
+            @personBankBalance = @personBankBalance + amount
+        else
+            return -1
+        end
+
+    end
+
+    def withdrawFromBank(amount)
+        ##### How to handle this transaction safely?  What if there's a system crash and the balance data are lost? 
+        if @personBankBalance >= amount
+            @personBankBalance = @personBankBalance - amount
+            @personCardBalance = @personCardBalance + amount
+        else
+            return -1
+        end
+    end
+
+    def board(vehicle)
+        # Check if on vehicle (if type(@location) == vehicle) already and if so, return -1
+
+        # Else, 
+    end
+
+    def unBoard()
+        # Check if on vehicle already, and if NOT, return -1
+
+        # Else, transfer location from the present vehicle to station the vehicle is in
+
+    end
+
 end
 
 if __FILE__ == $PROGRAM_NAME
@@ -161,14 +251,19 @@ if __FILE__ == $PROGRAM_NAME
     myBus = Bus.new("bus1", 0.95, myRoute, $stationUnion)
 
     # Create a person
-    myPerson = Person.new("Alice", 100, myBus)
+    myPerson = Person.new("Alice", 100, myBus) 
+    myPerson.transferToCard(50)
 
-    routes = [myRoute]
-    people = [myPerson]
+    mySecondPerson = Person.new("Bob", 120, $stationUnion)  
+    mySecondPerson.transferToCard(75)
+
+
+    $routes = [myRoute]
+    $people = [myPerson, mySecondPerson]
     $fleet = [myBus]
 
     puts "ROUTES\n"
-    for route in routes 
+    for route in $routes 
         route.info()
     end
 
@@ -179,7 +274,7 @@ if __FILE__ == $PROGRAM_NAME
     end
 
     puts "PEOPLE\n"
-    for person in people
+    for person in $people
         puts "Person:\n"
         person.info()
         puts "\n\n"
